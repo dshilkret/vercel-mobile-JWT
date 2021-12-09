@@ -1,0 +1,68 @@
+#device { background-color: green; }
+
+//TV
+@media tv { #device { background-color: red; } }
+
+//Projector
+@media projection { #device { background-color:blue; } }
+
+/////MOBILE/////
+@media screen and (max-width : 480px) { #device{background-color:yellow;} }
+
+//iPhone
+@media screen and (max-width : 320px) { #device{background-color:yellow;} }
+
+
+//iPad
+@media screen and (max-width : 768px) { #device{background-color:yellow;} } 
+
+//HTC One, Samsung Galaxy S5, OnePlus One
+@media screen and (device-width: 360px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 3) { #device{background-color:yellow;} }
+
+//Samsung Galaxy S2
+@media screen and (device-width: 320px) and (device-height: 534px) and (-webkit-device-pixel-ratio: 1.5) { #device{background-color:yellow;} }
+
+//Samsung Galaxy S3
+@media screen and (device-width: 320px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 2) { #device{background-color:yellow;} }
+
+//Samsung Galaxy S4
+@media screen and (device-width: 320px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 3) { #device{background-color:yellow;} }
+
+//LG Nexus 4
+@media screen and (device-width: 384px) and (device-height: 592px) and (-webkit-device-pixel-ratio: 2) { #device{background-color:yellow;} }
+
+//LG Nexus 5, Huawei Ascend P7
+@media screen and (device-width: 360px) and (device-height: 592px) and (-webkit-device-pixel-ratio: 3) { #device{background-color:yellow;} }
+
+//Asus Nexus 7
+@media screen and (device-width: 601px) and (device-height: 906px) and (-webkit-min-device-pixel-ratio: 1.331) and (-webkit-max-device-pixel-ratio: 1.332) { #device{background-color:yellow;} }
+
+//iPad 1, iPad 2, iPad Mini
+@media screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 1) { #device{background-color:yellow;} }
+
+//iPad 3, iPad 4
+@media screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) { #device{background-color:yellow;} }
+
+//iPhone 3G
+@media screen and (device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 1) { #device{background-color:yellow;} }
+
+//iPhone 4
+@media screen and (device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2) { #device{background-color:yellow;} }
+
+//iPhone 5
+@media screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) { #device{background-color:yellow;} }
+
+//iPhone 6
+@media screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) { #device{background-color:yellow;} }
+
+//iPhone 6 Plus
+@media screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) { #device{background-color:yellow;} }
+
+//Huawei Ascend P6
+@media screen and (device-width: 360px) and (device-height: 592px) and (-webkit-device-pixel-ratio: 2) { #device{background-color:yellow;} }
+
+//Laptop
+@media (min-width:1025px) { #device { background-color: green; } }
+
+//Desktop
+@media (min-width:1281px) { #device { background-color: green; } }

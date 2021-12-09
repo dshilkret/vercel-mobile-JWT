@@ -2,22 +2,21 @@
 <script>
 getList();
 function getList() {
-    debugger;
   $.ajax({
   type: "POST",
   crossDomain: true,
   url:
-    "https://login.microsoftonline.com/cc03691b-456c-4116-8ddd-157c08cfe3d2/oauth2/token?client_id=9624a483-5297-45f7-91da-a8ec0e75798b&client_secret=ifr7Q~ovd8qXf5PnwxmB8DjY2PGaaNfv0_3ZG&grant_type=password&username=ServiceNowAdmin@dtecho365.onmicrosoft.com&password=DTPass.01&resource=https://dtecho365.sharepoint.com",
-  headers: {
+    "https://login.microsoftonline.com/cc03691b-456c-4116-8ddd-157c08cfe3d2/oauth2/token",
+    headers: {
     "content-type": "application/x-www-form-urlencoded",
     "accept": "application/json;odata=verbose"
   },
-  data: {
-    "grant_type": "password",
-    "client_id": "9624a483-5297-45f7-91da-a8ec0e75798b@cc03691b-456c-4116-8ddd-157c08cfe3d2",
-    "client_secret": "ifr7Q~ovd8qXf5PnwxmB8DjY2PGaaNfv0_3ZG",
-    "resource":"dtecho365.sharepoint.com",
-  },
+  data: "client_id=9624a483-5297-45f7-91da-a8ec0e75798b&client_secret=ifr7Q~ovd8qXf5PnwxmB8DjY2PGaaNfv0_3ZG&grant_type=password&username=ServiceNowAdmin@dtecho365.onmicrosoft.com&password=DTPass.01&resource=https://dtecho365.sharepoint.com"
+    // "grant_type": "password",
+    // "client_id": "9624a483-5297-45f7-91da-a8ec0e75798b@cc03691b-456c-4116-8ddd-157c08cfe3d2",
+    // "client_secret": "ifr7Q~ovd8qXf5PnwxmB8DjY2PGaaNfv0_3ZG",
+    // "resource":"dtecho365.sharepoint.com",
+  ,
   success: function (data) {
     //data.token_type returns "Bearer"
     //data.access_token returns < AccessToken >

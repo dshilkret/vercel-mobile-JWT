@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="ropc.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
     ropcAuth();
@@ -32,32 +31,7 @@
 }
 </script>
 <script>
-    function setDevice(txt) {
-  var text = txt || '';
-  document.getElementById('device').innerHTML = text;
-}
 
-function setReferrer() {
-  document.getElementById('referrer').innerHTML = document.referrer;
-}
-
-/* ----------------------------------------------------- */
-var ua = navigator.userAgent.toLowerCase(),
-  platform = navigator.platform.toLowerCase();
-
-platformName = ua.match(/ip(?:ad|od|hone)/) ? 'ios' : (ua.match(/(?:webos|android)/) || platform.match(/mac|win|linux/) || ['other'])[0],
-
-  isMobile = /ios|android|webos/.test(platformName);
-
-if (isMobile) {
-  setDevice('Mobile - ' + platformName);
-} else if (document.getElementById('device').style.backgroundColor === 'red') {
-  setDevice('TV - ' + platformName);
-} else if (document.getElementById('device').style.backgroundColor === 'blue') {
-  setDevice('Projector - ' + platformName); //only works well in Opera
-} else {
-  setDevice('Desktop - ' + platformName);
-}
 
 
 getList();
@@ -134,8 +108,7 @@ function getList() {
 
 </script>
 <h3>Test Mobile CORS</h3>
-<div id="device" title="Device type"> ... </div>
-<div id="referrer"> </div>
+
 <span>Div1</span>
 <div id='div1'>
 Test1

@@ -59,7 +59,7 @@ function getList() {
         }
       },
       error: function (data, errorThrown, status) {
-        $("#div2").html("<span>" + errorThrown + "</span>");
+        $("#div2").html("<span>" + errorThrown + data + status + "</span>");
       },
     });
     //call the REST API with the at variable in header

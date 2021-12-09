@@ -1,0 +1,121 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script>
+getList();
+function getList() {
+    debugger;
+  $.ajax({
+  type: "POST",
+  crossDomain: true,
+  url:
+    "https://login.microsoftonline.com/cc03691b-456c-4116-8ddd-157c08cfe3d2/oauth2/token",
+    headers: {
+    "content-type": "application/x-www-form-urlencoded",
+    "accept": "application/json;odata=verbose"
+  },
+  data: "client_id=9624a483-5297-45f7-91da-a8ec0e75798b&client_secret=ifr7Q~ovd8qXf5PnwxmB8DjY2PGaaNfv0_3ZG&grant_type=password&username=ServiceNowAdmin@dtecho365.onmicrosoft.com&password=DTPass.01&resource=https://dtecho365.sharepoint.com"
+    // "grant_type": "password",
+    // "client_id": "9624a483-5297-45f7-91da-a8ec0e75798b@cc03691b-456c-4116-8ddd-157c08cfe3d2",
+    // "client_secret": "ifr7Q~ovd8qXf5PnwxmB8DjY2PGaaNfv0_3ZG",
+    // "resource":"dtecho365.sharepoint.com",
+  ,
+  success: function (data) {
+    //data.token_type returns "Bearer"
+    //data.access_token returns < AccessToken >
+    var btok = data.access_token;
+     $("#div1").html("<span>"+btok+"</span>");
+    //debugger;
+    $.ajax({
+      type: "GET",
+      crossDomain: true,
+      // url:"https://dtecho365.sharepoint.com/sites/ServiceNowDev1/_api/web/getfolderbyserverrelativeurl('/Shared%20Documents')/files",
+      url:"https://dtecho365.sharepoint.com/sites/ServiceNowDev1/_api/web/lists", 
+
+      headers: {
+        "Accept": "application/json;odata=verbose",
+        "Content-Type": "application/json;odata=verbose",
+        "Authorization": "bearer " + btok
+      },
+      success: function (data) {
+        alert(data);
+        for (var d in data.value) {
+          $("#div2").html(
+            "<span>" +
+              JSON.stringify(data.value[d].ServerRelativeUrl) +
+              "</span>"
+          );
+          var urlBase = "https://dtecho365.sharepoint.com/";
+          var relURL = data.value[d].ServerRelativeUrl;
+          var htmlOut =
+            "<br><span>" +
+            "<a target=_blank href=" +
+            urlBase +
+            relURL +
+            "?web=1" +
+            ">" +
+            "File Link</a></span>";
+          var htmlData =
+            "<br><span>" + JSON.stringify(data) + "File Link</a></span>";
+          $("#div3").append(htmlOut);
+          $("#div3").append(htmlData);
+        }
+      },
+      error: function (data, errorThrown, status) {
+        $("#div2").html("<span>" + errorThrown + data + status + "</span>");
+      },
+    });
+    //call the REST API with the at variable in header
+  },
+  error: function (data, errorThrown, status) {
+    console.log("data: " + JSON.stringify(data) + " status: " + JSON.stringify(status));
+    $("#div1").html("<span>" + errorThrown + "</span>");
+  },
+});
+
+}
+
+
+    ropcAuth();
+
+    function ropcAuth(){
+    debugger;
+    //alert("hello from ropcAuth");
+    var settings = {
+        "url": "https://login.microsoftonline.com/cc03691b-456c-4116-8ddd-157c08cfe3d2/oauth2/token",
+        "method": "POST",
+        "headers": {
+          "accept":"application/json;odata=verbose",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        "data": {
+          "client_id": "9624a483-5297-45f7-91da-a8ec0e75798b",
+          "scope": "user.read openid profile offline_access",
+          "client_secret": "ifr7Q~ovd8qXf5PnwxmB8DjY2PGaaNfv0_3ZG",
+          "username": "ServiceNowAdmin@dtecho365.onmicrosoft.com",
+          "password": "DTPass.01",
+          "grant_type": "password",
+          "resource": "https://dtecho365.sharepoint.com"
+        }
+      };
+
+      $.ajax(settings).done(function (response) {
+        console.log("response: " + response);
+       
+      });
+      //return response;
+}
+
+
+
+
+
+</script>
+<h3>Test Mobile CORS</h3>
+
+<span>Div1</span>
+<div id='div1'>
+Test1
+</div>
+
+<div id='div3'>
+Test3
+</div>

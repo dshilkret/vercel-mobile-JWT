@@ -1,0 +1,398 @@
+<script src="https://ven02714.service-now.com/x_dtll2_docintegra_app.do" type="text/javascript"></script>
+<script>
+   // Check browser support
+  /* if (typeof(Storage) !== "undefined" ) {
+     // Store
+     //sessionStorage.setItem("lastname", "Shilkret");
+     //window.localStorage.setItem("dsKey", "dog");
+     // Retrieve
+     alert(sessionStorage.getItem("lastname");
+     alert(localStorage.getItem("dsKey");
+   } else {
+     alert("Sorry, your browser does not support Web Storage...");
+   }*/
+  // use local storage for messaging. Set message in local storage and clear it right away
+// This is a safe way how to communicate with other tabs while not leaving any traces
+//
+  $(window).on('storage', message_receive);
+   function message_broadcast(message)
+   {
+       localStorage.setItem('message',JSON.stringify(message));
+       localStorage.removeItem('message');
+   }
+
+
+   // receive message
+   //
+   function message_receive(ev)
+   {
+       if (ev.originalEvent.key!='message') return; // ignore other keys
+       var message=JSON.parse(ev.originalEvent.newValue);
+       if (!message) return; // ignore empty msg or msg reset
+
+       // here you act on messages.
+       // you can send objects like { 'command': 'doit', 'data': 'abcd' }
+       if (message.command == 'doit') alert(message.data);
+
+       // etc.
+   } 
+</script>
+<div class="panel panel-default b">
+<div ng-hide="data.disableContentSearch" class="panel-heading form-inline">
+
+<head>
+   <!-- Reference from: https://gist.github.com/psignoret/50e88652ae5cb6cc157c09857e3ba87f
+   live sample at : https://bl.ocks.org/psignoret/raw/50e88652ae5cb6cc157c09857e3ba87f/
+   -->
+<title>DT Redirect Application Flow Demo </title>
+<meta charset="utf-8" />
+<style type="text/css">
+   body {
+       font-family: Tahoma;
+       padding: 3em;
+   }
+</style>
+<script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.17/js/adal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-polyfills/0.1.42/polyfill.min.js" integrity="sha256-/XfEHUGimdIk42Vy7oTnNLtT8sVrO6vnhhnsQT1W1oo=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+<p>
+  DT Redirect Application Flow
+</p>
+<p><small><i>dshilkret</i></small></p>
+<p>
+   <a href="#" onclick="authContext.login(); return false;" id="login">Log in</a><br/>
+   <a href="#" onclick="authContext.logOut(); return false;" id="logout">Log out</a>
+</p>
+<p id="username"></p>
+<div id="show-loggedin" style="display: none;">
+
+
+<!--MS Graph-->
+<pre id="api_response" style="display:none"></pre>
+<!--SharePoint currentuser-->
+<pre id="sp_api_response" style="display:none"></pre>
+</div>
+<div id="tkn"></div>
+<script>
+   
+tenantName = "";
+//Cache Tenant URL for subsequent call once it's received using graph token
+tenantUrl = localStorage.getItem("tenantUrl");
+//store config globally which will be useful for subsequent call.
+config = {
+   clientId: '7b7897c3-7193-43bc-8896-17b3bb8ab666', //57fbc2a2-1188-4ed0-aaf2-daca857d6957
+   postLogoutRedirectUri: 'https://ven02714.service-now.com/x_dtll2_docintegra_getToken_Too.do',
+   redirectUri:'https://ven02714.service-now.com/x_dtll2_docintegra_getToken_Too.do',
+   endpoints: {
+       graphApiUri: "https://graph.microsoft.com",
+       sharePointUri: tenantUrl 
+       //sharePointUri: "https://" + tenantName+ ".sharepoint.com",
+   },
+   cacheLocation: "localStorage"
+   //			endpoints:{sharepointUri:"https://brgrp.sharepoint.com",graphUri:"https://graph.microsoft.com"}
+};
+// Set up ADAL
+var authContext = new AuthenticationContext(config);
+
+// Make an AJAX request to the Microsoft Graph API and print the response as JSON.
+var getCurrentUser = function (access_token) {
+
+   document.getElementById('api_response').textContent = 'Calling API...';
+   // var xhr = new XMLHttpRequest();
+   // xhr.open('GET', 'https://graph.microsoft.com/v1.0/me', true);
+   // xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+   // xhr.onreadystatechange = function () {
+   //     if (xhr.readyState === 4 &amp;&amp; xhr.status === 200) {
+   //         // Do something with the response
+   //         document.getElementById('api_response').textContent =
+   //             JSON.stringify(JSON.parse(xhr.responseText), null, '  ');
+   //     } else {
+   //         // TODO: Do something with the error (or non-200 responses)
+   //         document.getElementById('api_response').textContent =
+   //             'ERROR:\n\n' + xhr.responseText;
+   //     }
+   // };
+   // xhr.send();
+   fetch('https://graph.microsoft.com/v1.0/me',{headers:{'Authorization':'Bearer ' + access_token}})
+   .then(function(r){return r.json();}).then(function(r){
+       document.getElementById('api_response').textContent =     JSON.stringify(r, null, '  ');
+   }).catch(function(r){
+       document.getElementById('api_response').textContent =
+       'ERROR:\n\n' + r;
+   });
+
+};
+
+if (authContext.isCallback(window.location.hash)) {
+
+   // Handle redirect after token requests
+   authContext.handleWindowCallback();
+   var err = authContext.getLoginError();
+   if (err) {
+       // TODO: Handle errors signing in and getting tokens
+       document.getElementById('api_response').textContent =
+           'ERROR:\n\n' + err;
+   }
+
+} else {
+
+   // If logged in, get access token and make an API request
+   var user = authContext.getCachedUser();
+   if (user) {
+
+       document.getElementById('username').textContent = 'Signed in as: ' + user.userName;
+       document.getElementById('api_response').textContent = 'Getting access token...';
+       document.getElementById('login').style.display= 'none';
+       document.getElementById('logout').style.display= 'block';
+       document.getElementById('show-loggedin').style.display= 'block';
+      
+       
+      
+       
+       // Get an access token to the Microsoft Graph API
+       authContext.acquireToken(
+           config.endpoints.graphApiUri,
+           function (error, token) {
+
+               if (error || !token) {
+                   // TODO: Handle error obtaining access token
+                   document.getElementById('api_response').textContent =
+                       'ERROR:\n\n' + error;
+                   return;
+               }
+
+               graphToken = token;
+               console.log("#### Received Graph Token ####");
+               console.log(graphToken);
+               // Use the access token
+               // Get an access token to the Microsoft Graph API
+               //If we have tenantUrl already Skip the graph call
+               if (!tenantUrl) {
+                   fetch("https://graph.microsoft.com/v1.0/sites/root", {
+                           headers: {
+                               Authorization: "Bearer " + graphToken
+                           }
+                       })
+                       .then(function(r) {return r.json();})
+                       .then(function(r) {
+                           console.log("#### Tenant Root Site ####");
+                           console.log(r, r.webUrl);
+                           config.endpoints.sharePointUri=r.webUrl;
+                           tenantUrl = r.webUrl;
+                           localStorage.setItem("tenantUrl",  tenantUrl);
+                           getSPCurrentuser(r.webUrl);
+                       });
+
+               } else {
+                // Skip  Graph call to get tenantUrl and call SP Rest Call with exisiting tenantUrl
+                   getSPCurrentuser(tenantUrl);
+               }
+               getCurrentUser(token);
+           }
+       );
+
+
+   } else {
+       document.getElementById('username').textContent = 'Not signed in.';
+       document.getElementById('login').style.display= 'block';
+       document.getElementById('logout').style.display= 'none';
+       document.getElementById('show-loggedin').style.display= 'none'; 
+   }
+}
+
+function getSPCurrentuser(tenantUrl) {
+   // Get an access token to the Microsoft Graph API
+   authContext.acquireToken(
+       tenantUrl,
+       function (error, token) {
+
+           if (error || !token) {
+               console.log(error);
+               // TODO: Handle error obtaining access token
+               document.getElementById('sp_api_response').textContent =
+                   'ERROR:\n\n' + error;
+               return;
+           }
+
+           // Use the access token
+           console.log("### SHAREPOINT APP TOKEN ###");
+
+           tkn = token;
+           hdrs = {
+               Authorization: "Bearer " + tkn
+           };
+           hdrs.accept = "application/json;odata=nometadata";
+           console.log(token);
+
+           console.log("### Getting Current USer using Sharepoint App Delegated token ###");
+           fetch(tenantUrl + "/_api/Web/currentuser", {
+               headers: hdrs
+           }).then(function(r) {return r.json();}).then(function(r) {
+
+               console.log(r);
+               // Do something with the response
+               document.getElementById('sp_api_response').textContent = JSON.stringify(r, null,
+                   '  ');
+
+           });
+       }
+   );
+}
+
+</script>
+</body>
+
+
+
+
+<form>
+    <div class="input-group">
+       <input type='text' placeholder="{{::c.options.title}}"
+          ng-model="c.filter1" 
+          aria-label=""
+          class="form-control input-typeahead"
+          name='filter1'/>
+       <span class="input-group-btn">
+       <button name="search" ng-click="c.search()" class="btn btn-default"
+          title="full text content search based on search engine" aria-label="full text search
+          based on search engine">
+       <i ng-if="::c.options.glyph" class="fa fa-{{::c.options.glyph}}"></i>
+       </button>
+       </span>                   
+    </div>
+    <div ng-if="(data.isDebug =='widgetDebug' || data.isDebug =='debug') &&  data.isDebugUser" class="alert alert-info">
+      <div ng-mouseover="open = !open" ng-mouseleave="">View Debugging Data</div>    
+      <div ng-if="open" class="alert alert-info">
+         <pre>mapSysID {{data.map_sys_id}}</pre>
+         <pre>View {{data.docview }}</pre>
+         <!-- <pre>c.updatedResults {{c.updatedResults}}</pre> -->
+         <pre>c.items {{c.items | json}}</pre>
+       
+       </div>          
+    </div>
+ </form>
+</div>
+
+<!-- head/body/footer switch between search and list -->
+<!--div ng-hide="data.searchContent"-->
+
+<!-- header -->
+<div class="panel-heading form-inline">
+ <span class="dropdown m-r-xss">
+    <button aria-label="${Table menu}" class="btn dropdown-toggle glyphicon glyphicon-menu-hamburger" style="line-height: 1.4em" id="optionsMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+    <ul class="dropdown-menu" aria-labelledby="optionsMenu">
+       <li ng-repeat="t in ::exportTypes">
+          <a ng-href="/{{data.table}}_list.do?{{::t.value}}&sysparm_query={{data.filter}}&sysparm_view={{data.view}}&sysparm_fields={{data.fields}}" target="_new">${Export as} {{::t.label}}</a>
+       </li>
+    </ul>
+ </span>
+ <span class="panel-title"></span>
+
+ <button name="new" role="link" class="btn btn-primary btn-sm m-l-xs" ng-click="newRecord()" 
+ ng-if="options.show_new == 'true' && data.canCreate && !data.newButtonUnsupported" 
+ aria-label="${Create new record}">${New}</button>
+
+ <!-- new upload integration -->
+ <img src="{{data.upload_logo}}" 
+    ng-if="data.can_upload" 
+    class="pull-right attachment-button main" 
+    id="sp-logo" onMouseOver="this.style.cursor='pointer'" 
+    title="Upload document"
+    ng-click="c.openModal()"/>
+
+ <!-- Link documents -->
+ <a href="discoverdocintegratorportal?id=docint_search_full&spa=1&q=&c={{data.context}}" target="_blank">
+    <!-- <button name="linkDocs" role="link" class="pull-right btn btn-primary btn-sm m-l-xs"   
+    aria-label="${Attach Other Documents}">${Attach Documents}</button> -->
+   
+    <!-- <button name="linkDocs" class="pull-right btn btn-default btn-sm" title="Find SharePoint documents">
+       <i ng-if="::c.options.glyph" class="fa fa-{{::c.options.glyph}}"></i>
+    </button> -->
+    <img src="{{data.attach_logo}}" style="width:26px;height:26px;"      
+    class="pull-right attachment-button main" 
+    id="sp-attach" onMouseOver="this.style.cursor='pointer'" 
+    title="Find SharePoint documents"/>
+ </a>
+
+ <img src="{{data.attach_logo}}"  style="width:26px;height:26px;"
+    ng-if="!data.can_upload" 
+    class="pull-right attachment-button main" 
+    id="sp-logo" onMouseOver="this.style.cursor='pointer'" 
+    title="Refresh Document List"
+    ng-click="c.refreshModel()"/>
+ <div class="clearfix"></div>
+
+</div>
+<div class="panel-heading form-inline" ng-hide="options.hide_header == 'false'">
+ <span class="min-height-20 panel-title"> </span>
+</div>
+<!-- body -->
+<div class="panel-body">
+ <h2 class="sr-only data-table-title">{{data.title || data.table_plural}} ${table} - ${page} {{data.p}}</h2>
+ <!--D2-->
+ <div class="alert alert-info" ng-if="!c.items.length && !c.data.num_pages && !data.invalid_table && !loadingData">
+    ${No records} <span ng-if="data.filter">using that filter</span> <span ng-bind="data.fieldName"></span><span ng-bind="data.fieldValue"></span>
+ </div>
+ <!--D2 -->      
+ <div class="alert alert-info" ng-if="loadingData">
+    <fa name="spinner" spin="true"></fa>
+    ${Loading data}...
+ </div>
+ <div class="alert alert-info" ng-if="data.message != null">
+    <span ng-bind="data.message"></span>
+ </div>
+ <table class="table table-striped table-responsive" ng-if="c.items.length">
+    <thead>
+       <tr>
+          <th class="sr-only"></th>
+          <th ng-repeat="field in data.fields_array track by $index" ng-click="setOrderBy(field)" tabindex="0">
+             <div class="th-title" aria-label="${Sort by } {{data.column_labels[field]}}">{{data.column_labels[field]}}</div>
+             <i class="fa" ng-if="field == data.o" ng-class="{'asc': 'fa-chevron-up', 'desc': 'fa-chevron-down'}[data.d]" aria-label="${Sorted by } {{data.column_labels[field]}} {{data.d == 'asc' ?  '${Ascending}': '${Descending}' }}"></i>
+          </th>
+       </tr>
+    </thead>
+    <tbody>
+       <tr ng-repeat="item in c.items track by item.SID">
+          <td class="sr-only" tabindex="0" role="link" 
+             ng-click="go(data.table, item)" 
+             aria-label="${Open record}"></td>
+          <td role="text" aria-label="{{item[field]}}" class="pointer" ng-class="{selected: item.selected}" ng-click="go(data.table, item)" ng-repeat="field in data.fields_array track by $index" data-field="{{field}}" data-th="{{data.column_labels[field]}}">
+             <span ng-if="data.clickable_fields.indexOf(field) == -1 && data.edit_properties_fields.indexOf(field) == -1 ">{{item[field]}}
+             </span>
+             <span ng-if="data.clickable_fields.indexOf(field) !=-1  && data.edit_properties_fields.indexOf(field) == -1 "><a href="{{item.url}}" name="documentLink" target="_blank" title="Open Document">{{item[field]}}</a>
+             </span>                 
+             <span ng-if="data.clickable_fields.indexOf(field) ==-1  && data.edit_properties_fields.indexOf(field) != -1 ">
+             <a href="{{item.edit_url}}" name="editLink" target="popup" ng-click="popUpEditDetails(data.edit_url)" title="Edit Properties">{{item[field]}}</a>
+             </span>
+          </td>
+       </tr>
+    </tbody>
+ </table>
+ <div ng-class="{'pruned-msg-filter-pad': !c.items.length}" class="pruned-msg" ng-if="rowsWerePruned()">
+    <span ng-if="rowsPruned == 1">${{{rowsPruned}} row removed by security constraints}</span>
+    <span ng-if="rowsPruned > 1">${{{rowsPruned}} rows removed by security constraints}</span>
+ </div>
+</div>
+<!-- footer -->
+<div class="panel-footer" ng-hide="options.hide_footer == 'true'" ng-if="data.row_count">
+ <div class="btn-toolbar m-r pull-left">
+    <div class="btn-group">
+       <a ng-disabled="data.p == 1" href="javascript:void(0)" ng-click="setPageNum(data.p - 1)" class="btn btn-default"  aria-label="${Previous page}"><i class="fa fa-chevron-left"></i></a>
+    </div>
+    <div ng-if="c.data.num_pages > 1 && c.data.num_pages < 20" class="btn-group">
+       <a ng-repeat="i in getNumber(data.num_pages) track by $index" ng-click="setPageNum($index + 1)" href="javascript:void(0)" ng-class="{active: ($index + 1) == data.p}" type="button" class="btn btn-default" aria-label="${Page} {{$index + 1}}">{{$index + 1}}</a>
+    </div>
+    <div class="btn-group">
+       <a ng-disabled="data.p == c.data.num_pages" href="javascript:void(0)" ng-click="setPageNum(data.p + 1)" class="btn btn-default" aria-label="${Next page}"><i class="fa fa-chevron-right"></i></a>
+    </div>
+ </div>
+ <div class="m-t-xs panel-title">${Rows {{c.data.window_start + 1}} - {{ mathMin(c.data.window_end,c.data.row_count) }} of {{c.data.row_count}}}</div>
+ <span class="clearfix"></span>
+</div>
+
+<!--/div-->
+ 
+</div>
+</div>

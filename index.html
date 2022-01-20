@@ -8,14 +8,15 @@ function getList(){
     $.ajax({
       url: restUrl,
       type: "GET",
-      crossDomain: true,
-      async: false,
+      //crossDomain: true,
+      //async: false,
 			accept: "application/json;odata=verbose",
 			"content-type": "application/json;odata=verbose",
 			Authorization: token,
-      xhrFields: {
-       withCredentials: true
-     },
+      //headers: this.getCORSAuthHeaders(),
+      //xhrFields: {
+      //  withCredentials: true
+     // },
       success: function (data, status) {
 				debugger;
 				console.log("success: " + data);

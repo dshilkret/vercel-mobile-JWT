@@ -13,10 +13,10 @@ function getList(){
 			accept: "application/json;odata=verbose",
 			"content-type": "application/json;odata=verbose",
 			Authorization: token,
-      //headers: this.getCORSAuthHeaders(),
-      //xhrFields: {
-      //  withCredentials: true
-     // },
+      headers: this.getCORSAuthHeaders(),
+      xhrFields: {
+       withCredentials: true
+     },
       success: function (data, status) {
 				debugger;
 				console.log("success: " + data);
